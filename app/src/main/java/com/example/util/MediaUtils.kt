@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import android.util.LruCache
+import androidx.core.content.FileProvider
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -24,6 +25,16 @@ import kotlin.math.roundToInt
 object MediaUtils {
   private val bitmapCache =
     object : LruCache<String, Bitmap>(32) {}
+
+  fun createCameraCaptureUri(context: Context): Uri {
+    val dir = File(context.cacheDir, "camera_captures").apply { mkdirs() }
+    val photoFile = File(dir, "capture_${System.currentTimeMillis()}.jpg")
+    return FileProvider.getUriForFile(
+      context,
+      "${context.packageName}.fileprovider",
+      photoFile,
+    )
+  }
 
   fun decodeDataUrlToBitmap(dataUrl: String?): Bitmap? {
     if (dataUrl.isNullOrBlank()) return null

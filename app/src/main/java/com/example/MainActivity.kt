@@ -437,17 +437,14 @@ private fun AuthenticatedInstaConnectShell(
 
       createPostKind?.let { initialKind ->
         CreatePostSheet(
+          currentUserId = viewModel.currentUserId,
+          currentAuthor = currentProfile,
           initialKind = initialKind,
           onDismiss = { createPostKind = null },
-          onPublish = { kind, mediaType, mediaDataUrl, videoUri, caption, audioTitle ->
-            viewModel.createPost(
-              postKind = kind,
-              mediaType = mediaType,
-              mediaDataUrl = mediaDataUrl,
-              videoUri = videoUri,
-              caption = caption,
-              audioTitle = audioTitle,
-              onCreated = { createPostKind = null },
+          onPostCreated = { _, kind ->
+            createPostKind = null
+            viewModel.postStatusBanner(
+              if (kind == Post.KIND_REEL) "Reel published!" else "Post shared!"
             )
           },
         )

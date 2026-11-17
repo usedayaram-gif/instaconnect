@@ -222,6 +222,10 @@ class InstaConnectViewModel(
     _statusBanner.value = null
   }
 
+  fun postStatusBanner(message: String) {
+    _statusBanner.value = message
+  }
+
   fun toggleDarkTheme(currentlyDark: Boolean) {
     _isDarkModeOverride.value = !currentlyDark
   }

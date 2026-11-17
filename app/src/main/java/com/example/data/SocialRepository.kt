@@ -342,6 +342,66 @@ class SocialRepository(
     )
   }
 
+  fun observeIsFollowing(currentUserId: String, targetUserId: String): Flow<Boolean> = flow {
+    if (currentUserId == targetUserId) {
+      emit(false)
+      return@flow
+    }
+    val path = "users/$currentUserId/following/$targetUserId"
+    emitAll(
+      wrapFlowError(
+        db.collection("users")
+          .document(currentUserId)
+          .collection("following")
+          .document(targetUserId)
+          .snapshots()
+          .map { snapshot -> snapshot.exists() && snapshot.getBoolean("isActive") != false },
+        OperationType.GET,
+        path,
+        expectedUid = currentUserId,
+      )
+    )
+  }
+
+  suspend fun fetchUserProfileOnce(userId: String): Result<UserProfile?> = runCatching {
+    val userRef = db.collection("users").document(userId)
+    try {
+      val snapshot = userRef.get().await()
+      if (snapshot.exists()) {
+        snapshot.toObject(
+          UserProfile::class.java,
+          DocumentSnapshot.ServerTimestampBehavior.ESTIMATE,
+        )
+      } else {
+        null
+      }
+    } catch (e: CancellationException) {
+      throw e
+    } catch (e: Exception) {
+      handleFirestoreError(e, OperationType.GET, userRef.path)
+      throw e
+    }
+  }
+
+  suspend fun countActiveFollowers(userId: String): Result<Long> = runCatching {
+    val path = "users/$userId/followers"
+    try {
+      val snap =
+        db.collection("users")
+          .document(userId)
+          .collection("followers")
+          .whereEqualTo("isActive", true)
+          .get()
+          .await()
+      snap.size().toLong()
+    } catch (e: CancellationException) {
+      throw e
+    } catch (e: Exception) {
+      handleFirestoreError(e, OperationType.LIST, path)
+      throw e
+    }
+  }
+
   suspend fun toggleFollow(
     currentUser: UserProfile,
     targetUser: UserProfile,
