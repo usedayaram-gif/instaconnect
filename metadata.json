@@ -1,0 +1,6 @@
+{
+  "name": "InstaConnect",
+  "description": "A modern social media mobile app with feed posts, 24-hour stories, vertical reels, real-time messaging, explore search, notifications, profiles, and admin moderation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

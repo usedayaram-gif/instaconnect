@@ -1,0 +1,237 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public social profile for an InstaConnect user (excludes PII).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID" },
+        "username": { "type": "string", "description": "Unique lowercase handle (3-30 chars)" },
+        "displayName": { "type": "string", "description": "Display name" },
+        "bio": { "type": "string", "description": "Optional profile biography" },
+        "photoDataUrl": { "type": "string", "description": "Compressed profile avatar JPEG data URI" },
+        "isPublic": { "type": "boolean", "description": "Whether profile appears in search" },
+        "isSuspended": { "type": "boolean", "description": "Admin moderation suspension state" },
+        "followersCount": { "type": "integer", "description": "Follower count" },
+        "followingCount": { "type": "integer", "description": "Following count" },
+        "postsCount": { "type": "integer", "description": "Posts and reels count" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update" }
+      },
+      "required": ["userId", "username", "displayName", "isPublic", "isSuspended", "followersCount", "followingCount", "postsCount", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Owner-isolated PII contact details (email and mobile number).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID" },
+        "email": { "type": "string", "description": "Contact email address" },
+        "phoneNumber": { "type": "string", "description": "Optional mobile number" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update" }
+      },
+      "required": ["userId", "updatedAt"]
+    },
+    "FollowRelation": {
+      "title": "FollowRelation",
+      "description": "Follower or following relationship edge.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Follower UID" },
+        "targetUserId": { "type": "string", "description": "Followed UID" },
+        "username": { "type": "string", "description": "Denormalized username" },
+        "photoDataUrl": { "type": "string", "description": "Denormalized avatar data URI" },
+        "isActive": { "type": "boolean", "description": "Active follow flag" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp" }
+      },
+      "required": ["userId", "targetUserId", "username", "isActive", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Feed photo/video post or vertical Reel.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string", "description": "Creator UID" },
+        "authorUsername": { "type": "string", "description": "Creator handle" },
+        "authorPhotoDataUrl": { "type": "string", "description": "Creator avatar data URI" },
+        "postKind": { "type": "string", "enum": ["post", "reel"], "description": "Feed post or short vertical Reel" },
+        "mediaType": { "type": "string", "enum": ["image", "video"], "description": "Media kind" },
+        "mediaDataUrl": { "type": "string", "description": "Image or video thumbnail data URI" },
+        "videoUri": { "type": "string", "description": "Playable video URI for video posts and reels" },
+        "caption": { "type": "string", "description": "Post caption with hashtags" },
+        "hashtags": { "type": "array", "description": "Up to 10 extracted hashtags" },
+        "audioTitle": { "type": "string", "description": "Optional music/audio track title" },
+        "visibility": { "type": "string", "enum": ["public", "removed"], "description": "Moderation visibility" },
+        "likesCount": { "type": "integer", "description": "Total likes" },
+        "commentsCount": { "type": "integer", "description": "Total comments" },
+        "sharesCount": { "type": "integer", "description": "Total shares" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp" }
+      },
+      "required": ["authorId", "authorUsername", "postKind", "mediaType", "mediaDataUrl", "caption", "hashtags", "visibility", "likesCount", "commentsCount", "sharesCount", "createdAt", "updatedAt"]
+    },
+    "PostLike": {
+      "title": "PostLike",
+      "description": "User like marker on a post or reel.",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "userId": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["postId", "userId", "isActive", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Comment on a post or reel.",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorUsername": { "type": "string" },
+        "authorPhotoDataUrl": { "type": "string" },
+        "text": { "type": "string" },
+        "isVisible": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["postId", "authorId", "authorUsername", "text", "isVisible", "createdAt"]
+    },
+    "Story": {
+      "title": "Story",
+      "description": "24-hour story with optional music and sticker.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorUsername": { "type": "string" },
+        "authorPhotoDataUrl": { "type": "string" },
+        "mediaDataUrl": { "type": "string" },
+        "caption": { "type": "string" },
+        "musicTitle": { "type": "string" },
+        "stickerLabel": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["active", "removed"] },
+        "expiresAtEpochMs": { "type": "integer" },
+        "viewsCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorUsername", "mediaDataUrl", "visibility", "expiresAtEpochMs", "viewsCount", "createdAt", "updatedAt"]
+    },
+    "ChatThread": {
+      "title": "ChatThread",
+      "description": "1-on-1 private conversation metadata.",
+      "type": "object",
+      "properties": {
+        "participantIds": { "type": "array" },
+        "participantUsernames": { "type": "object" },
+        "participantPhotos": { "type": "object" },
+        "lastMessageText": { "type": "string" },
+        "lastMessageType": { "type": "string", "enum": ["text", "image", "video", "voice"] },
+        "lastSenderId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["participantIds", "lastMessageText", "lastMessageType", "lastSenderId", "createdAt", "updatedAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Private chat message supporting text, photo, video, and voice notes.",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "messageType": { "type": "string", "enum": ["text", "image", "video", "voice"] },
+        "text": { "type": "string" },
+        "mediaDataUrl": { "type": "string" },
+        "videoUri": { "type": "string" },
+        "audioDurationSec": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["chatId", "senderId", "participantIds", "messageType", "text", "createdAt"]
+    },
+    "AppNotification": {
+      "title": "AppNotification",
+      "description": "In-app activity notification for followers, likes, comments, and messages.",
+      "type": "object",
+      "properties": {
+        "recipientId": { "type": "string" },
+        "actorId": { "type": "string" },
+        "actorUsername": { "type": "string" },
+        "actorPhotoDataUrl": { "type": "string" },
+        "type": { "type": "string", "enum": ["follow", "like", "comment", "message"] },
+        "targetId": { "type": "string" },
+        "previewText": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["recipientId", "actorId", "actorUsername", "type", "targetId", "previewText", "isRead", "createdAt"]
+    },
+    "ModerationReport": {
+      "title": "ModerationReport",
+      "description": "User-submitted moderation report for posts, users, or stories.",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["post", "user", "story"] },
+        "targetId": { "type": "string" },
+        "targetSummary": { "type": "string" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "resolved", "dismissed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["reporterId", "targetType", "targetId", "targetSummary", "reason", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Public user profiles"
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Private PII info doc"
+    },
+    "/users/{userId}/followers/{followerId}": {
+      "schema": { "$ref": "#/entities/FollowRelation" },
+      "description": "Followers of userId"
+    },
+    "/users/{userId}/following/{targetId}": {
+      "schema": { "$ref": "#/entities/FollowRelation" },
+      "description": "Accounts followed by userId"
+    },
+    "/users/{userId}/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/AppNotification" },
+      "description": "Activity notifications for userId"
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/Post" },
+      "description": "Feed posts and Reels"
+    },
+    "/posts/{postId}/likes/{userId}": {
+      "schema": { "$ref": "#/entities/PostLike" },
+      "description": "Likes on a post or reel"
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Comments on a post or reel"
+    },
+    "/stories/{storyId}": {
+      "schema": { "$ref": "#/entities/Story" },
+      "description": "24-hour stories with music and stickers"
+    },
+    "/chats/{chatId}": {
+      "schema": { "$ref": "#/entities/ChatThread" },
+      "description": "Private 1-on-1 chat threads"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Real-time messages inside a chat thread"
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/ModerationReport" },
+      "description": "Content and user reports for Admin Panel"
+    }
+  }
+}
